@@ -5,4 +5,7 @@ urlpatterns = [
      path('',views.hello,name='index'), 
      path('check/<int:id>',views.check,name='check'),   
      path('addnew',views.addnew,name='addnew'),
+     path('savedata',views.savedata,name='savedata'),
+     path('updatedata/<int:id>',views.updatedata,name='updatedata'),
+     
 ]
