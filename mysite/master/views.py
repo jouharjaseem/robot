@@ -7,6 +7,7 @@ from parrot import Parrot
 import torch
 import warnings
 from .models import Person
+from googletrans import Translator
 warnings.filterwarnings("ignore")
 def addnew(request):
 
@@ -45,24 +46,25 @@ def home(request):
     data = Person.objects.values().order_by('id')
 
     return render(request,'home.html',{"cont":data}) 
-def hello(request): 
-    url = "https://dzone.com/articles/10-database-optimization-best-practices-for-web-de"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, "html.parser")
-    table = soup.find('div',  {'class': 'content-html'})
-    table=table.find_all('p')
-    cont = []
-  
-    for ta in table:
-          
-          #translation=translator.translate(ta.get_text(),  dest='ml')
-          #cont.append(translation.text)
-          #translation=translator.translate(translation.text,  dest='en')  
-          cont.append(ta.get_text())
-          break
-    
 
-    return render(request,'index.html',{"cont":cont}) 
+def trans(request):
+    data = Person.objects.values().order_by('id')
+
+    return render(request,'trans.html',{"cont":data}) 
+def trascheck(request,id): 
+    data = Person.objects.filter(id=id).values().order_by('id')
+    content = data[0]['content']
+    translator = Translator()
+    translation = translator.translate(content, dest='ml')
+    
+    ob= Person.objects.get(id=id)
+    ob.content = translation.text
+    ob.identiy = 2
+    ob.save()
+       
+    return redirect('trans')
+ 
+    
 def check(request,id):
     data = Person.objects.filter(id=id).values().order_by('id')
     content = data[0]['content']
@@ -83,9 +85,9 @@ def updatedata(request,id):
     data = Person.objects.values().order_by('id')
     data = [user.get('content') for user in data]
     data = ' '.join(data)
-    print(data)
-    url = "https://api.razorpay.com/v1/plans"
-    data = {'period': 'monthly', 'interval': '2', 'item[name]': 'test plan', 'item[amount]': '50000', 'item[currency]': 'INR'}
+    
+    url = "https://www.letsthink.in/addnew"
+    data = {'id': id, 'name':data}
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    #r = requests.post(url, data=json.dumps(data), headers=headers, auth=('rzp_test_yourTestApiKey', 'yourTestApiSecret'))
+    r = requests.post(url, data=json.dumps(data), headers=headers, auth=('rzp_test_yourTestApiKey', 'yourTestApiSecret'))
     return render(request,'index.html',{"cont":""}) 
